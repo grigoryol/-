@@ -1,0 +1,123 @@
+//Старцев Григорий 
+//БСБО-05-19
+//3-5 задания практической работы №1 (1,2 проверили в аудитории)
+using System;
+using System.IO;
+using System.Text.Json;
+using System.Threading.Tasks;
+using System.Xml;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.IO.Compression;
+using System.Xml.Linq;
+
+namespace ConsoleApp1
+{
+    class Person
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+    }
+    class User
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+        public string Company { get; set; }
+    }
+    class Program
+    {
+        static async Task Main(string[] args)
+        {
+                
+                Console.WriteLine("Введите номер задания:");
+                int nomer = Convert.ToInt32(Console.ReadLine());
+                switch (nomer)
+                {
+                    case 1:
+                            Console.WriteLine("Задание проверено в аудитории");
+                            break;
+                        case 2:
+                            Console.WriteLine("Задание проверено в аудитории");
+                 
+                        break;
+                    case 3:
+                             using (FileStream fs = new FileStream("user.json", FileMode.OpenOrCreate))
+                            {
+                                Person grigory = new Person() { Name = "Григорий", Age = 19 };
+                                await JsonSerializer.SerializeAsync<Person>(fs, grigory);
+                                Console.WriteLine("Data has been saved to file");
+                            }
+                            // чтениеданных
+                            using (FileStream fs = new FileStream("user.json", FileMode.OpenOrCreate))
+                            {
+                                Person restoredPerson = await JsonSerializer.DeserializeAsync<Person>(fs);
+                                Console.WriteLine($"Name: {restoredPerson.Name} Age: {restoredPerson.Age}");
+                            }
+                            break;
+                        case 4:
+                        Console.WriteLine(" XML-файл");
+
+                        string fileName = Directory.GetCurrentDirectory() + "base.xml";
+                        XDocument doc = new XDocument(
+                        new XElement("phone",
+                        new XAttribute("name", "iPhone 6"),
+                        new XElement("company", "Apple"),
+                        new XElement("price", "40000")),
+                        new XElement("phone",
+                        new XAttribute("name", "Samsung Galaxy S5"),
+                        new XElement("company", "Samsung"),
+                        new XElement("price", "33000")));
+                        doc.Save(fileName);
+                        Console.WriteLine("XML файл создался в : проект/bin/Debug/netcoreapp3.1");
+                        Console.WriteLine("информация о записях");
+
+                        foreach (var item in doc.Root.Elements())
+                        {
+                            Console.WriteLine($"{item.Name}: {item.Value}");
+                        }
+                        break;
+                       
+                        
+                    case 5:
+                        string sourceFile = "D://test/book.pdf";
+                        string compressedFile = "D://test/book.gz";
+                        string targetFile = "D://test/book_new.pdf";
+                        Compress(sourceFile, compressedFile);
+                        Decompress(compressedFile, targetFile);
+
+                        static void Compress(string sourceFile, string compressedFile)
+                        {
+                            using (FileStream sourceStream = new FileStream(sourceFile, FileMode.OpenOrCreate))
+                            {
+                                using (FileStream targetStream = File.Create(compressedFile))
+                                {
+                                    using (GZipStream compressionStream = new GZipStream(targetStream, CompressionMode.Compress))
+                                    {
+                                        sourceStream.CopyTo(compressionStream);
+                                        Console.WriteLine("Сжатие файла {0} завершено. Исходный размер: {1}  сжатый размер: {2}.",
+                                        sourceFile, sourceStream.Length.ToString(), targetStream.Length.ToString());
+                                    }
+                                }
+                            }
+                        }
+                        static void Decompress(string compressedFile, string targetFile)
+                        {
+                            using (FileStream sourceStream = new FileStream(compressedFile, FileMode.OpenOrCreate))
+                            {
+                                using (FileStream targetStream = File.Create(targetFile))
+                                {
+                                    using (GZipStream decompressionStream = new GZipStream(sourceStream, CompressionMode.Decompress))
+                                    {
+                                        decompressionStream.CopyTo(targetStream);
+                                        Console.WriteLine("Восстановлен файл: {0}", targetFile);
+                                    }
+                                }
+                            }
+                        }
+                        break;
+
+                }
+            
+        }
+    }
+}
